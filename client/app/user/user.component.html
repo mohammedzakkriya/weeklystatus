@@ -1,0 +1,106 @@
+<app-header></app-header>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="" *ngIf="loading" style="width:100%;height: 100px;opacity:0.5; position:absolute;text-align:center;top:'0px';">
+      <i class="fa fa-refresh fa-spin" style="font-size:96px"></i>
+    </div>
+    <button class="btn btn-md btn-outline-primary" (click)="AddNewUser()" *ngIf="!addmode">Add New</button>
+    <div class="todos" *ngIf="usersList && !loading && !addmode && !editmode">
+      <table class="table">
+        <thead class="h">
+          <tr class="h">
+            <th class="h" width="25%">First Name</th>
+            <th class="h" width="15%">Last Name</th>
+            <th class="h" width="15%">Username</th>
+            <th class="h" width="15%" *ngIf="userData.role=='admin'">Role</th>
+            <th class="h" width="15%" *ngIf="userData.role=='admin'">Reporting Manager</th>
+            <th class="h" width="15%">Options</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="todo"  *ngFor="let user of usersList">
+              <td>{{user.firstName}}</td>
+              <td>{{user.lastName}}</td>
+              <td>{{user.username}}</td>
+              <td *ngIf="userData.role=='admin'">{{user.role}}</td>
+              <td *ngIf="userData.role=='admin'">{{user.manager}}</td>
+            <td class="o">
+              <button class="btn btn-success" (click)="doneUser(user)" *ngIf="editmode">
+                <i  class="fa fa-check"></i>
+              </button>
+              <button class="btn btn-primary" (click)="editUser(user)" *ngIf="!editmode">
+                  <i  class="fa fa-pencil"></i>
+                </button>
+              <button class="btn btn-danger" (click)="deleteUser(user._id)">
+                  <i  class="fa fa-trash"></i>
+                </button>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<div class="col-md-6 col-md-offset-3" *ngIf="addmode">
+    <h2>Add New User</h2>
+    <form name="form" (ngSubmit)="f.form.valid && CreateUser()" #f="ngForm" novalidate>
+        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !firstName.valid }">
+            <label for="firstName">First Name</label>
+            <input type="text" class="form-control" name="firstName" [(ngModel)]="model.firstName" #firstName="ngModel" required />
+            <div *ngIf="f.submitted && !firstName.valid" class="help-block">First Name is required</div>
+        </div>
+        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !lastName.valid }">
+            <label for="lastName">Last Name</label>
+            <input type="text" class="form-control" name="lastName" [(ngModel)]="model.lastName" #lastName="ngModel" required />
+            <div *ngIf="f.submitted && !lastName.valid" class="help-block">Last Name is required</div>
+        </div>
+        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !username.valid }">
+            <label for="username">Email</label>
+            <input type="text" class="form-control" name="username" [(ngModel)]="model.username" #username="ngModel" required />
+            <div *ngIf="f.submitted && !username.valid" class="help-block">Username is required</div>
+        </div>
+        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !password.valid }">
+            <label for="password">Password</label>
+            <input type="password" class="form-control" name="password" [(ngModel)]="model.password" #password="ngModel" required />
+            <div *ngIf="f.submitted && !password.valid" class="help-block">Password is required</div>
+        </div>
+        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !role.valid }">
+          <label for="role">Role</label>
+          <select name="role" [(ngModel)]="model.role" #role="ngModel"  class="form-control form-control-sm" required>
+            <option value="user" selected>User</option>   
+            <option value="manager" *ngIf="userData.role=='admin'">Manager</option>
+          </select>
+          <div *ngIf="f.submitted && !role.valid" class="help-block">Select Role</div>
+        </div>
+        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !manager.valid }" *ngIf="userData.role=='admin'">
+          <label for="manager">Reporting Manager</label>
+          <select name="manager" [(ngModel)]="model.manager" #manager="ngModel"  class="form-control form-control-sm" required>
+            <option [value]="user.username" *ngFor="let user of usersList">{{user.firstName}}, {{user.lastName}}</option>
+          </select>
+          <div *ngIf="f.submitted && !manager.valid" class="help-block">Select Reporting Manager</div>
+        </div>
+        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !active.valid }">
+          <label for="active">Status</label>
+          <select name="active" [(ngModel)]="model.active" #active="ngModel"  class="form-control form-control-sm" required>
+            <option value=true selected>Active</option>   
+            <option value=false>InActive</option>
+          </select>
+          <div *ngIf="f.submitted && !active.valid" class="help-block">Select Status</div>
+        </div>
+        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !project.valid }">
+          <label for="active">Assign Project</label>
+          <select name="project" multiple="multiple" [(ngModel)]="model.projects" #project="ngModel" class="form-control form-control-sm" (change)="selectProjects($event.target.options)" required>
+            <option [value]="project" *ngFor="let project of projectLists">{{project}}</option>
+           
+          </select>
+          <div *ngIf="f.submitted && !project.valid" class="help-block">Select Project</div>
+        </div>
+        <div class="form-group">
+            <button [disabled]="loading" class="btn btn-primary">Submit</button>
+            <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+            <a [routerLink]="['']" class="btn btn-link">Cancel</a>
+        </div>
+    </form>
+</div>

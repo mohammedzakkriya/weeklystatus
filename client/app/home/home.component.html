@@ -1,0 +1,152 @@
+﻿<app-header></app-header>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="" *ngIf="loading" style="width:100%;height: 100px;opacity:0.5; position:absolute;text-align:center;top:'0px';">
+      <i class="fa fa-refresh fa-spin" style="font-size:96px"></i>
+    </div>
+    <div class="todos" *ngIf="tasks && !loading">
+      <!--button (click)="generateReportByUser()" *ngIf="userData.role!='user'">Generate Report By User</button-->
+      <!--button (click)="generateReportByProject()" *ngIf="userData.role!='user'">Generate Report By Project</button-->
+      <!--button (click)="generateReportByActivities()" >Generate Report By Activities</button-->
+      <button class="btn btn-md btn-outline-primary" (click)="open(content)" *ngIf="userData.role=='manager'">Generate Report By Activities</button>
+      <table class="table">
+        <thead class="h">
+          <tr class="h">
+            <th class="h" width="45%">Task</th>
+            <th class="h" width="10%">Status</th>
+            <th class="h" width="10%">Project</th>
+            <th class="h" width="10%" *ngIf="userData.role!='user'">User</th>
+            <th class="h" width="10%">Date</th>
+            <th class="h" width="15%">Options</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="todo" (dblclick)="editTask(task)" *ngFor="let task of tasks">
+
+            <ng-container *ngIf="!editTasks.includes(task); else editTD">
+              <td>{{task.title}}</td>
+              <td>{{task.status}}</td>
+              <td>{{task.project}}</td>
+              <td *ngIf="userData.role!='user'">{{task.user}}</td>
+              <td>{{task.date | date :  "dd/MM"}}</td>
+            </ng-container>
+
+            <ng-template #editTD>
+                <td><textarea name="title" id="title" (keypress)="submitTask($event, task)" [(ngModel)]="task.title" placeholder="Title" class="form-control"></textarea></td>
+               
+                <td>
+                  <select name="status" [(ngModel)]="task.status" #role="ngModel" class="form-control form-control-sm" required>
+                    <option value="notstarted">Not Started</option>   
+                    <option value="inprogress">In Progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="onhold">On Hold</option>
+                   </select>
+                </td>
+                <td>
+                  <select name="project" [(ngModel)]="task.project" #role="ngModel" class="form-control form-control-sm" required>
+                       <option [value]="project" *ngFor="let project of projectLists">{{project}}</option>
+                       <option value="other">Other</option>
+                   </select>
+                </td>
+                <td *ngIf="userData.role!='user'">
+                  <select name="user" [(ngModel)]="task.user" #user="ngModel" class="form-control form-control-sm" required>
+                       <option [value]="user.username" *ngFor="let user of userGroup">{{user.username}}</option>
+                   </select>
+                  </td>
+                <td>
+                  {{task.date | date :  "MM/dd"}}
+                </td>
+            </ng-template>
+
+            <td class="o">
+              <button class="btn btn-success" (click)="doneTask(task)" *ngIf="editmode">
+                <i  class="fa fa-check"></i>
+              </button>
+              <button class="btn btn-primary" (click)="editTask(task)" *ngIf="!editmode">
+                  <i  class="fa fa-pencil"></i>
+                </button>
+              <button class="btn btn-danger" (click)="deleteTask(task._id)">
+                  <i  class="fa fa-trash"></i>
+                </button>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+      <h2>Create Task</h2>
+      <form (ngSubmit)="f.form.valid && create(newTask)" #f="ngForm" novalidate>
+      <div class="row">
+
+        <div class="col-md-10">
+            <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !title.valid }">
+              <textarea name="title" id="title" [(ngModel)]="newTask.title" #title="ngModel" placeholder="Task Description" class="form-control" required rows="6"></textarea>
+              <div *ngIf="f.submitted && !title.valid" class="help-block">Task Description is required</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+          <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !status.valid }">
+            <select name="status" [(ngModel)]="newTask.status" #status="ngModel"  class="form-control form-control-sm" required>
+                <option value="notstarted" selected>Not Started</option>   
+                <option value="inprogress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="onhold">On Hold</option>
+            </select>
+            <div *ngIf="f.submitted && !status.valid" class="help-block">Select Status</div>
+          </div>
+          <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !project.valid }">
+            <select name="project" [(ngModel)]="newTask.project" #project="ngModel" class="form-control form-control-sm" required>
+              <option [value]="project" *ngFor="let project of projectLists">{{project}}</option>
+              <option value="other" *ngIf="userData.role=='user'">Other</option>
+            </select>
+            <div *ngIf="f.submitted && !project.valid" class="help-block">Select Project</div>
+          </div>
+          <div class="form-group">
+          <button  class="btn btn-primary">Add</button>
+          </div>
+        </div>
+        
+      </div>
+</form>
+    </div>
+  </div>
+  <ng-template #content let-c="close" let-d="dismiss">
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Weekly Status Report</h4>
+      <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-md-12">
+          <h4>Current Activities ({{firstdayOfWeek  | date :  "MM/dd" }} - {{lastDayOfWeek  | date :  "MM/dd"}})</h4>
+          <ul>
+            <li *ngFor = "let project of projectActivitiesDataReport.current" [hidden]="project.projectTasks.length == 0"><span >{{project.projectname}}</span>
+                <ul>
+                    <li *ngFor="let task of project.projectTasks">
+                      {{task.title}}
+                    </li>
+                </ul>
+            </li>
+          </ul>
+          <h4>Upcoming Activities ({{firstdayOfWeek  | date :  "MM/dd" }} - {{lastDayOfWeek  | date :  "MM/dd"}})</h4>
+          <ul>
+            <li *ngFor = "let project of projectActivitiesDataReport.upcoming">{{project.projectname}}
+                <ul>
+                    <li *ngFor="let task of project.projectTasks">
+                      {{task.title}}
+                    </li>
+                </ul>
+            </li>
+          </ul>
+        </div>
+</div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" (click)="c('Save click')">Save</button>
+    </div>
+  </ng-template>
+
+      
+

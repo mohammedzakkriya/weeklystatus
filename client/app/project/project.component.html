@@ -1,0 +1,85 @@
+<app-header></app-header>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="" *ngIf="loading" style="width:100%;height: 100px;opacity:0.5; position:absolute;text-align:center;top:'0px';">
+      <i class="fa fa-refresh fa-spin" style="font-size:96px"></i>
+    </div>
+    <button class="btn btn-md btn-outline-primary" (click)="AddNewProject()" *ngIf="!addmode">Add New</button>
+    <div class="todos" *ngIf="projectLists && !loading && !addmode && !editmode">
+      <table class="table">
+        <thead class="h">
+          <tr class="h">
+            <th class="h" width="35%">Project Name</th>
+            <th class="h" width="30%">Managed By </th>
+            <th class="h" width="20%">Status</th>
+            <th class="h" width="15%">Options</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="todo"  *ngFor="let project of projectLists">
+                <ng-container *ngIf="!editProjects.includes(task); else editTD">
+              <td>{{project.projectname}}</td>
+              <td>{{project.managedby}}</td>
+              <td>{{project.status}}</td>
+            <td class="o">
+              <button class="btn btn-success" (click)="doneProject(project)" *ngIf="editmode">
+                <i  class="fa fa-check"></i>
+              </button>
+              <button class="btn btn-primary" (click)="editProject(project)" *ngIf="!editmode">
+                  <i  class="fa fa-pencil"></i>
+                </button>
+              <button class="btn btn-danger" (click)="deleteProject(project._id)">
+                  <i  class="fa fa-trash"></i>
+                </button>
+            </td>
+            </ng-container>
+            <ng-template #editTD>
+                <td>
+                    <input type="text" class="form-control" name="projectname" [(ngModel)]="project.projectname" #projectname="ngModel" required />
+                </td>
+               
+                
+                <td>
+                  <select name="status" [(ngModel)]="project.status" #status="ngModel" class="form-control form-control-sm" required>
+                        <option value=true selected>Active</option>   
+                        <option value=false>InActive</option>
+                   </select>
+                </td>
+            </ng-template>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<div class="col-md-6 col-md-offset-3" *ngIf="addmode">
+    <h2>Add New Project</h2>
+    <form name="form" (ngSubmit)="f.form.valid && CreateProject()" #f="ngForm" novalidate>
+        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !projectName.valid }">
+            <label for="projectName">Project Name</label>
+            <input type="text" class="form-control" name="projectName" [(ngModel)]="model.projectName" #projectName="ngModel" required />
+            <div *ngIf="f.submitted && !projectName.valid" class="help-block">Project Name is required</div>
+        </div>
+        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !managedby.valid }">
+          <label for="managedby">Manager</label>
+          <select name="managedby" [(ngModel)]="model.managedby" #managedby="ngModel"  class="form-control form-control-sm" required>
+            <option [value]="user.username" *ngFor="let user of usersList">{{user.firstName}}, {{user.lastName}}</option>
+          </select>
+          <div *ngIf="f.submitted && !managedby.valid" class="help-block">Select Manager</div>
+        </div>
+        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !active.valid }">
+          <label for="active">Status</label>
+          <select name="active" [(ngModel)]="model.active" #active="ngModel"  class="form-control form-control-sm" required>
+            <option value=true selected>Active</option>   
+            <option value=false>InActive</option>
+          </select>
+          <div *ngIf="f.submitted && !active.valid" class="help-block">Select Status</div>
+        </div>
+        <div class="form-group">
+            <button [disabled]="loading" class="btn btn-primary">Submit</button>
+            <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+            <a [routerLink]="['']" class="btn btn-link">Cancel</a>
+        </div>
+    </form>
+</div>
