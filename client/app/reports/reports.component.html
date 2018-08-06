@@ -1,0 +1,33 @@
+<app-header></app-header>
+<div class="row">
+  <div class="col-md-12">
+    <div class="" *ngIf="loading" style="width:100%;height: 100px;opacity:0.5; position:absolute;text-align:center;top:'0px';">
+      <i class="fa fa-refresh fa-spin" style="font-size:96px"></i>
+    </div>
+    
+    <div class="todos" *ngIf="reportList && !loading">
+      <table class="table">
+        <thead class="h">
+          <tr class="h">
+            <th class="h" width="40%">Date</th>
+            <th class="h" width="40%">Reports</th>
+            <th class="h" width="20%">Options</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="todo"  *ngFor="let report of reportList">
+            <td>{{report.date | date :  "MM/dd"}}</td>
+            <td><button >Click to Preview</button></td>
+            <td class="o">
+              
+              <button class="btn btn-danger" (click)="deleteReport(report._id)">
+                <i  class="fa fa-trash"></i>
+               
+                </button>
+              </td>
+              
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>

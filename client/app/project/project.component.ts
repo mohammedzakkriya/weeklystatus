@@ -54,9 +54,9 @@ export class ProjectComponent implements OnDestroy {
     CreateProject() {
         this.loading = true;
         console.log('nodel data:', this.model);
-        let reportingManager =  this.model.manager;
-        
-        this.userService.createNewUser(this.model, reportingManager)
+        // let reportingManager =  this.model.manager;
+        this.model.managedby = this.userData.username;
+        this.projectService.create(this.model)
         .subscribe(
             data => {
                 this.alertService.success('User created successfully', true);

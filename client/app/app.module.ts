@@ -9,13 +9,14 @@ import { routing } from './app.routing';
 import {NgbModule, NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import { AuthGuard } from './_guards/index';
 import { JwtInterceptorProvider, ErrorInterceptorProvider } from './_helpers/index';
-import { AlertService, AuthenticationService, UserService, TaskService, ProjectService, HeaderDataService} from './_services/index';
+import { AlertService, AuthenticationService, UserService, TaskService, ProjectService, ReportService,  HeaderDataService} from './_services/index';
 import { HomeComponent } from './home/index';
 import { HeaderComponent } from './header/index';
 import { UserComponent } from './user/index';
 import { LoginComponent } from './login/index';
 import { RegisterComponent } from './register/index';
 import { ProjectComponent } from './project/index';
+import { ReportsComponent } from './reports/index';
 import { AlertComponent, NgbdModalBasic } from './_directives/index';
 
 @NgModule({
@@ -35,7 +36,8 @@ import { AlertComponent, NgbdModalBasic } from './_directives/index';
         RegisterComponent,
         HeaderComponent,
         NgbdModalBasic,
-        ProjectComponent
+        ProjectComponent,
+        ReportsComponent
     ],
     providers: [
         NgbActiveModal,
@@ -45,6 +47,7 @@ import { AlertComponent, NgbdModalBasic } from './_directives/index';
         UserService,
         TaskService,
         ProjectService,
+        ReportService,
         JwtInterceptorProvider,
         ErrorInterceptorProvider,
         HeaderDataService

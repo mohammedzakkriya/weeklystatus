@@ -1,11 +1,11 @@
 ﻿import { Component, OnDestroy } from '@angular/core';
-
+import { Router } from '@angular/router';
 import { User } from '../_models/index';
 import { Task } from '../_models/index';
 import { TaskService } from '../_services/index';
 import { UserService } from '../_services/index';
 //import { ProjectService } from '../_services';
-import { HeaderDataService } from '../_services/index';
+import { HeaderDataService, ReportService } from '../_services/index';
 import { Subscription } from 'rxjs/Subscription';
 import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 @Component({
@@ -36,7 +36,7 @@ export class HomeComponent implements OnDestroy {
     };
     modalData: any = { 'header': 'Current Activities'};
     private subscription: Subscription;
-    constructor(private modalService: NgbModal, private userService: UserService, private taskService: TaskService, private headerDataService:  HeaderDataService) {
+    constructor(private router: Router, private modalService: NgbModal, private userService: UserService, private taskService: TaskService, private headerDataService:  HeaderDataService, private reportService: ReportService) {
       this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
         this.loading = true;
       this.subscription = this.headerDataService.getState().subscribe(
@@ -50,7 +50,32 @@ export class HomeComponent implements OnDestroy {
     ngOnDestroy() {
       this.subscription.unsubscribe();
     }
-   
+    saveReport(reportObj: any) {
+      this.loading = true;
+      //.log('nodel data:', this.model);
+      let obj = {
+          reportByActivities : reportObj,
+          user: this.userData.username,
+          date: new Date()
+      }
+      
+      this.reportService.create(obj)
+      .subscribe(
+          data => {
+              //this.alertService.success('User created successfully', true);
+              //this.router.navigate(['/login']);
+              //this.loadAllProjects();
+              this.loading = false;
+              this.router.navigate(['/routes']);
+          },
+          error => {
+              //this.alertService.error(error);
+              this.loading = false;
+          });
+      
+      
+  }
+  
     generateReportByActivities() {
      // let activitiesArray: any = {
         this.projectActivitiesDataReport.current= this.getActivitiesData(this.tasks, this.userGroup, 'current');

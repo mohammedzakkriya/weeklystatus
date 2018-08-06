@@ -27,6 +27,7 @@ app.use(expressJwt({
 app.use('/users', require('./controllers/users.controller'));
 app.use('/tasks', require('./controllers/tasks.controller'));
 app.use('/projects', require('./controllers/project.controller'));
+app.use('/reports', require('./controllers/reports.controller'));
 // error handler
 app.use(function (err, req, res, next) {
     if (err.name === 'UnauthorizedError') {
